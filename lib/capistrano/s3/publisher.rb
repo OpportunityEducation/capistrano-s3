@@ -76,7 +76,7 @@ module Capistrano
           }
 
           options.merge!(build_redirect_hash(path, extra_options[:redirect]))
-          options.merge!(extra_options[:write] || {})
+          options.merge!(build_write_hash(path, extra_options[:write]))
 
           if mime_type
             options.merge!(build_content_type_hash(mime_type))
@@ -94,6 +94,16 @@ module Capistrano
           return {} unless redirect_options && redirect_options[path]
 
           { :website_redirect_location => redirect_options[path] }
+        end
+
+        def self.build_write_hash(path, write_options)
+          return {} unless write_options
+
+          # Build the global write options
+          write_options_for_path = write_options.select{|k,v| !v.is_a?(Hash)}
+
+          # Override with path specific options
+          write_options[path] ? write_options_for_path.merge(write_options[path]) : write_options_for_path
         end
 
         def self.build_content_type_hash(mime_type)
