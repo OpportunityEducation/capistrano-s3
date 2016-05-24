@@ -31,6 +31,17 @@ module Capistrano
         FileUtils.rm(LAST_PUBLISHED_FILE)
       end
 
+      def self.cleanup!(s3_endpoint, key, secret, bucket, source)
+        s3 = self.establish_s3_client_connection!(s3_endpoint, key, secret)
+
+        remote_files = s3.list_objects(bucket_name: bucket)[:contents].collect{|h| h[:key]}
+        local_files  = self.files(source).delete_if{|file| File.directory?(file)}.collect{|file| self.base_file_path(source, file).gsub(/^\//, "")}
+
+        files_to_delete = remote_files - local_files - %w(error.html)
+
+        puts files_to_delete.inspect
+      end
+
       private
 
         # Establishes the connection to Amazon S3

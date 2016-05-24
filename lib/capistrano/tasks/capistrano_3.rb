@@ -17,6 +17,12 @@ namespace :deploy do
       Capistrano::S3::Publisher.publish!(fetch(:s3_endpoint), fetch(:access_key_id), fetch(:secret_access_key),
                              fetch(:bucket), fetch(:deployment_path), extra_options)
     end
+
+    desc "Cleanup old files"
+    task :cleanup do
+      Capistrano::S3::Publisher.cleanup!(fetch(:s3_endpoint), fetch(:access_key_id), fetch(:secret_access_key),
+                             fetch(:bucket), fetch(:deployment_path))
+    end
   end
 
   before :updated, :upload_s3 do
